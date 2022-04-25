@@ -24,6 +24,7 @@ while (true)
     byte[] buffer = new byte[5242880];
     int[] bytesMap = new int[] { };
 
+    //Get bytes map
     receiveBytes = handler.Receive(buffer);
     handler.Send(buffer);
 
@@ -64,5 +65,5 @@ while (true)
         indSize += 2;
     }
 
-    //handler.Send(buffer);
+    handler.Send(buffer);
 }
