@@ -1,8 +1,21 @@
 {
   "version": 2,
-  "dgSpecHash": "jNHaKQEfBWPslWTV2vLpXGgd2ySiiZ6rfWkok1HnlHdex25GY30uNv5SEEfkrHhs8fz+amxLKMby4RaWd9MteA==",
+  "dgSpecHash": "kS0iAIOI8CTEnFtf4VOLPZNWtF35iOHwW0TH7kib53sPEZAD+sIR79mEYnO6HBRST9VElbXVlLlgiLSxJAAMlQ==",
   "success": true,
   "projectFilePath": "D:\\Programming\\С sharp\\Сloud storage application\\Client\\Client\\Client.csproj",
-  "expectedPackageFiles": [],
-  "logs": []
+  "expectedPackageFiles": [
+    "C:\\Users\\Oleg\\.nuget\\packages\\materialskin\\0.2.1\\materialskin.0.2.1.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Пакет \"MaterialSkin 0.2.1\" был восстановлен с помощью \".NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8\", а не целевой платформы проекта \"net6.0-windows7.0\". Этот пакет может быть не полностью совместим с вашим проектом.",
+      "libraryId": "MaterialSkin",
+      "targetGraphs": [
+        "net6.0-windows7.0"
+      ]
+    }
+  ]
 }
