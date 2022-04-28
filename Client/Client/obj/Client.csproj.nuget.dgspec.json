@@ -40,9 +40,9 @@
         "net6.0-windows7.0": {
           "targetAlias": "net6.0-windows",
           "dependencies": {
-            "MaterialSkin": {
+            "MaterialSkin.2": {
               "target": "Package",
-              "version": "[0.2.1, )"
+              "version": "[2.3.1, )"
             }
           },
           "imports": [

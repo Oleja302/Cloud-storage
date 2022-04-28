@@ -131,17 +131,8 @@ void DeleteData(Socket handler)
 
     //Delete files
     foreach (FileInfo file in dirInfo.GetFiles())
-    {
         if (filesName.Contains(file.Name))
-        {
-            //foreach (string path in pathFiles)
-            //    if (path.Contains(file.Name))
-            //        pathFiles.Remove(path);
-
             file.Delete();
-
-        }
-    }
 
     handler.Send(buffer);
 }
