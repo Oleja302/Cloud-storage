@@ -13,7 +13,6 @@ namespace Client
 
         static byte[] buffer = new byte[5242880];
         static int[] bytesMap = new int[] { };
-        static List<string> filesForView = new List<string>();
         static List<string> pathFiles = new List<string>();
         static Logger l = new Logger();
 
@@ -21,21 +20,41 @@ namespace Client
         {
             Save = 1,
             Download = 2,
-            Delete = 3
+            Delete = 3,
+            GetFiles = 4
         }
 
         public Form1()
         {
             InitializeComponent();
-            filesForView = l.ReadFilesOnCloud();
-            viewFileTree();
             toolStripStatusLabel1.Text = "Количество выбранных файлов: 0";
         }
 
         void viewFileTree()
         {
             treeView1.Nodes.Clear();
-            foreach (string name in filesForView)
+
+            IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.Connect(ipPoint);
+
+            int receiveBytes = 0;
+            string filesName = string.Empty;
+
+            socket.Send(BitConverter.GetBytes((int)Query.GetFiles));
+
+            do
+            {
+                receiveBytes = socket.Receive(buffer);
+                filesName += Encoding.Unicode.GetString(buffer, 0, receiveBytes);
+            }
+            while (socket.Available > 0);
+          
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+
+            if (filesName.Length == 1) return;
+            foreach (string name in Encoding.Unicode.GetString(buffer, 0, receiveBytes).Split('|'))
             {
                 TreeNode node = new TreeNode();
                 node.Text = name;
@@ -86,13 +105,10 @@ namespace Client
                 e.Node.BackColor = Color.Gainsboro;
                 e.Node.Tag = "selected";
             }
-
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //if (pathFiles.Count == 0) return;
-
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipPoint);
@@ -132,14 +148,7 @@ namespace Client
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
 
-
-            foreach (string path in pathFiles)
-                if (!filesForView.Contains(Path.GetFileName(path))) filesForView.Add(Path.GetFileName(path));
-
-            filesForView = filesForView.Distinct().ToList();
-
             //Log
-            l.WriteFilesOnCloud(filesForView);
             l.Send(pathFiles.Count, size);
             //
 
@@ -272,15 +281,20 @@ namespace Client
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
 
-            //Delete files from filesForView
-            filesForView = filesForView.Except(filesNameForDelte).ToList();
-
             //Log
-            l.WriteFilesOnCloud(filesForView);
             l.Delete(filesNameForDelte.Count);
             //
 
             viewFileTree();
-        }       
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Form2 form2 = new Form2();
+            Hide();
+            form2.ShowDialog();
+            viewFileTree();
+            Show();
+        }
     }
 }

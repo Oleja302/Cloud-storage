@@ -46,9 +46,9 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(7, 70);
+            this.panel1.Location = new System.Drawing.Point(6, 71);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(887, 373);
+            this.panel1.Size = new System.Drawing.Size(514, 373);
             this.panel1.TabIndex = 1;
             this.panel1.Visible = false;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
@@ -57,7 +57,7 @@
             // 
             this.label1.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label1.Image = ((System.Drawing.Image)(resources.GetObject("label1.Image")));
-            this.label1.Location = new System.Drawing.Point(380, 157);
+            this.label1.Location = new System.Drawing.Point(200, 143);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(118, 80);
             this.label1.TabIndex = 0;
@@ -79,7 +79,7 @@
             this.statusStrip1.Location = new System.Drawing.Point(3, 446);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(894, 25);
+            this.statusStrip1.Size = new System.Drawing.Size(520, 25);
             this.statusStrip1.TabIndex = 8;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -98,7 +98,7 @@
             this.button1.Font = new System.Drawing.Font("Century Gothic", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.button1.ForeColor = System.Drawing.Color.Transparent;
             this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
-            this.button1.Location = new System.Drawing.Point(752, 71);
+            this.button1.Location = new System.Drawing.Point(375, 71);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(142, 46);
             this.button1.TabIndex = 9;
@@ -115,7 +115,7 @@
             this.button2.Font = new System.Drawing.Font("Century Gothic", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.button2.ForeColor = System.Drawing.Color.Transparent;
             this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
-            this.button2.Location = new System.Drawing.Point(752, 143);
+            this.button2.Location = new System.Drawing.Point(375, 143);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(142, 46);
             this.button2.TabIndex = 10;
@@ -132,7 +132,7 @@
             this.button3.Font = new System.Drawing.Font("Century Gothic", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.button3.ForeColor = System.Drawing.Color.Transparent;
             this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
-            this.button3.Location = new System.Drawing.Point(752, 214);
+            this.button3.Location = new System.Drawing.Point(375, 214);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(142, 46);
             this.button3.TabIndex = 11;
@@ -148,7 +148,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.ClientSize = new System.Drawing.Size(900, 474);
+            this.ClientSize = new System.Drawing.Size(526, 474);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -160,6 +160,7 @@
             this.Name = "Form1";
             this.Padding = new System.Windows.Forms.Padding(3, 67, 3, 3);
             this.Text = "Synnefo";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             this.DragLeave += new System.EventHandler(this.Form1_DragLeave);

@@ -1,8 +1,10 @@
-﻿namespace Client
+﻿using System.Net.Sockets;
+
+namespace Server
 {
-    internal class Logger : IQuery
+    internal class Logger
     {
-        public void Send(int count, long size)
+        public void Save(int count, long size)
         {
             if (!File.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\log.log"))
             {
