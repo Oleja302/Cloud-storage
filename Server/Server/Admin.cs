@@ -23,7 +23,7 @@ namespace Server
 
             byte[] buffer = new byte[5242880];
             int[] bytesMap = new int[] { };
-            string pathFilesClient = AppDomain.CurrentDomain.BaseDirectory + "\\Storage\\";
+            string pathFilesClient = AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\";
 
             //Get bytes map
             receiveBytes = handler.Receive(buffer);
@@ -36,6 +36,7 @@ namespace Server
             {
                 allReceiveBytes += handler.Receive(buffer, 0, bytesMap[indName], SocketFlags.None);
                 fullPath = pathFilesClient + Encoding.Unicode.GetString(buffer, 0, bytesMap[indName]);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
                 for (int i = 1; receiveBytesWithoutName != bytesMap[indSize]; i++)
                 {
@@ -67,6 +68,9 @@ namespace Server
             }
 
             handler.Send(buffer);
+
+            Logger l = new Logger();
+            l.Save(bytesMap.Length, allReceiveBytes);
         }
 
         public void Download(Socket handler)
@@ -76,8 +80,9 @@ namespace Server
             string map = string.Empty;
             string savePath = string.Empty;
             List<string> filesName = new List<string>();
+            long fileSize = 0;
 
-            string pathFilesClient = AppDomain.CurrentDomain.BaseDirectory + "\\Storage\\";
+            string pathFilesClient = AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\";
             DirectoryInfo dirInfo = new DirectoryInfo(pathFilesClient);
             FileInfo[] cloudFiles = dirInfo.GetFiles();
 
@@ -97,29 +102,56 @@ namespace Server
                 filesName.Add(Encoding.Unicode.GetString(buffer, 0, receiveBytes));
             }
 
-            //Send bytes map          
-            foreach (FileInfo f in cloudFiles)
-                foreach (string name in filesName)
-                    if (f.Name == name)
+            //Send bytes map
+            foreach (string name in filesName)
+            {
+                if (File.Exists(pathFilesClient + name))
+                {
+                    map += name.Split("\\")[^1].Length * sizeof(char);
+                    map += '.';
+                    map += new FileInfo(pathFilesClient + name).Length;
+                    map += '.';
+                    fileSize += new FileInfo(pathFilesClient + name).Length;
+                }
+                else
+                {
+                    foreach (string f in Directory.GetFiles(pathFilesClient + name, "*", SearchOption.AllDirectories))
                     {
-                        map += new FileInfo(f.FullName).Length;
+                        map += (f.Length - pathFilesClient.Length) * sizeof(char);
                         map += '.';
+                        map += new FileInfo(f).Length;
+                        map += '.';
+                        fileSize += new FileInfo(f).Length;
                     }
-
+                }
+            }
             map = map.Remove(map.Length - 1);
 
             handler.Send(Encoding.Unicode.GetBytes(map));
             handler.Receive(buffer);
 
             //Send data
-            foreach (FileInfo f in cloudFiles)
-                foreach (string name in filesName)
-                    if (f.Name == name)
-                        handler.Send(File.ReadAllBytes(f.FullName));
+            foreach (string name in filesName)
+            {
+                if (File.Exists(pathFilesClient + name))
+                {
+                    handler.Send(Encoding.Unicode.GetBytes(name.Split("\\")[^1]));
+                    handler.Send(File.ReadAllBytes(pathFilesClient + name));
+                }
+                else
+                    foreach (string f in Directory.GetFiles(pathFilesClient + name, "*", SearchOption.AllDirectories))
+                    {
+                        handler.Send(Encoding.Unicode.GetBytes(f.Remove(0, f.IndexOf("Storage") + "Storage".Length + 1)));
+                        handler.Send(File.ReadAllBytes(f));
+                    }
+            }
 
             handler.Receive(buffer);
             handler.Shutdown(SocketShutdown.Both);
             handler.Close();
+
+            Logger l = new Logger();
+            l.Download(bytesMap.Length, fileSize);
         }
 
         public void Delete(Socket handler)
@@ -128,7 +160,7 @@ namespace Server
             int[] bytesMap = new int[] { };
 
             int receiveBytes = 0;
-            string pathFilesClient = AppDomain.CurrentDomain.BaseDirectory + "\\Storage\\";
+            string pathFilesClient = AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\";
             List<string> filesName = new List<string>();
             DirectoryInfo dirInfo = new DirectoryInfo(pathFilesClient);
 
@@ -145,21 +177,26 @@ namespace Server
                 filesName.Add(Encoding.Unicode.GetString(buffer, 0, receiveBytes));
             }
 
-            //Delete files
-            foreach (FileInfo file in dirInfo.GetFiles())
-                if (filesName.Contains(file.Name))
-                    file.Delete();
-
             handler.Send(buffer);
+
+            //Delete files
+            foreach (string f in filesName)
+            {
+                if (File.Exists(pathFilesClient + f)) File.Delete(pathFilesClient + f);
+                else Directory.Delete(pathFilesClient + f, true);
+            }
+
+            Logger l = new Logger();
+            l.Delete(bytesMap.Length);
         }
 
         public void GetFiles(Socket handler)
         {
+            DirectoryInfo dirInfo = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\");
             string filesName = string.Empty;
-            string[] files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\", "*", SearchOption.AllDirectories);
 
-            foreach (string file in files)
-                filesName += Path.GetFileName(file) + "|";
+            foreach (FileInfo file in dirInfo.GetFiles("*", SearchOption.AllDirectories))
+                filesName += file.FullName.Remove(0, file.FullName.IndexOf($"\\Storage\\") + $"\\Storage\\".Length) + "|";
 
             if (filesName.Length == 0)
                 handler.Send(Encoding.Unicode.GetBytes("|"));

@@ -14,6 +14,8 @@ namespace Client
         static byte[] buffer = new byte[5242880];
         static int[] bytesMap = new int[] { };
         static List<string> pathFiles = new List<string>();
+        static List<string> fileNames = new List<string>();
+        static List<TreeNode> selectedNode = new List<TreeNode>();
         static Logger l = new Logger();
 
         enum Query
@@ -41,6 +43,7 @@ namespace Client
             int receiveBytes = 0;
             string filesName = string.Empty;
 
+            //Send code query
             socket.Send(BitConverter.GetBytes((int)Query.GetFiles));
 
             do
@@ -49,22 +52,56 @@ namespace Client
                 filesName += Encoding.Unicode.GetString(buffer, 0, receiveBytes);
             }
             while (socket.Available > 0);
-          
+
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
 
             if (filesName.Length == 1) return;
-            foreach (string name in Encoding.Unicode.GetString(buffer, 0, receiveBytes).Split('|'))
+
+            //Performance files in tree          
+            TreeNode currentNode = new TreeNode();
+            if (treeView1.TopNode == null) treeView1.Nodes.Add(currentNode);
+            else currentNode = treeView1.TopNode;
+
+            foreach (string pathFile in Encoding.Unicode.GetString(buffer, 0, receiveBytes).Split('|'))
             {
-                TreeNode node = new TreeNode();
-                node.Text = name;
-                treeView1.Nodes.Add(node);
+                foreach (string node in pathFile.Split('\\'))
+                {
+                    TreeNode newNode = new TreeNode(node);
+                    newNode.Name = node;
+
+                    if (currentNode.Nodes.Find(node, false).Length == 0)
+                        currentNode.Nodes.Add(newNode);
+                    currentNode = currentNode.Nodes.Find(node, false)[0];
+                }
+
+                currentNode = treeView1.Nodes[0];
             }
+
+            treeView1.ExpandAll();
         }
 
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
-            pathFiles.AddRange((string[])e.Data.GetData(DataFormats.FileDrop));
+            foreach (string path in (string[])e.Data.GetData(DataFormats.FileDrop))
+            {
+                if (Directory.Exists(path))
+                {
+                    string root = new DirectoryInfo(path).Name;
+                    foreach (string f in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
+                    {
+                        pathFiles.Add(f);
+                        fileNames.Add(f.Remove(0, f.IndexOf(root)));
+                    }
+                }
+                else
+                {
+                    pathFiles.Add(path);
+                    fileNames.Add(Path.GetFileName(path));
+                }
+            }
+
+
             pathFiles = pathFiles.Distinct().ToList();
             toolStripStatusLabel1.Text = $"Количество выбранных файлов: {pathFiles.Count}";
             panel1.Visible = false;
@@ -99,11 +136,13 @@ namespace Client
             {
                 e.Node.BackColor = Color.Transparent;
                 e.Node.Tag = "not selected";
+                selectedNode.Remove(e.Node);
             }
             else
             {
                 e.Node.BackColor = Color.Gainsboro;
                 e.Node.Tag = "selected";
+                selectedNode.Add(e.Node);
             }
         }
 
@@ -122,26 +161,27 @@ namespace Client
             socket.Receive(buffer);
 
             //Send bytes map
-            foreach (string path in pathFiles)
+            for (int i = 0; i < fileNames.Count; i++)
             {
-                map += Path.GetFileName(path).Length * sizeof(char);
+                map += fileNames[i].Length * sizeof(char);
                 map += '.';
-                map += new FileInfo(path).Length;
+                map += new FileInfo(pathFiles[i]).Length;
                 map += '.';
 
                 //For log
-                size += new FileInfo(path).Length;
+                size += new FileInfo(pathFiles[i]).Length;
             }
+
             map = map.Remove(map.Length - 1);
 
             socket.Send(Encoding.Unicode.GetBytes(map));
             socket.Receive(buffer);
 
             //Send data and name file
-            foreach (string path in pathFiles)
+            for (int i = 0; i < fileNames.Count; i++)
             {
-                socket.Send(Encoding.Unicode.GetBytes(Path.GetFileName(path)));
-                socket.Send(File.ReadAllBytes(path));
+                socket.Send(Encoding.Unicode.GetBytes(fileNames[i]));
+                socket.Send(File.ReadAllBytes(pathFiles[i]));
             }
 
             socket.Receive(buffer);
@@ -153,6 +193,7 @@ namespace Client
             //
 
             pathFiles.Clear();
+            fileNames.Clear();
             toolStripStatusLabel1.Text = "Количество выбранных файлов: 0";
             viewFileTree();
         }
@@ -163,12 +204,14 @@ namespace Client
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipPoint);
 
-            int index = 0;
+            int indName = 0;
+            int indSize = 1;
             int allReceiveBytes = 0;
             int receiveBytes = 0;
             int receiveBytesOneFile = 0;
             string fullPath = string.Empty;
 
+            TreeNode currentNode;
             string map = string.Empty;
             string savePath = string.Empty;
             var filesName = new List<string>();
@@ -178,8 +221,20 @@ namespace Client
             socket.Receive(buffer);
 
             //Get file name checked
-            foreach (TreeNode node in treeView1.Nodes)
-                if (node.Tag == "selected") filesName.Add(node.Text);
+            foreach (TreeNode node in selectedNode)
+            {
+                fullPath += node.Text;
+                currentNode = node;
+
+                while (currentNode.Parent != treeView1.TopNode)
+                {
+                    fullPath = fullPath.Insert(0, currentNode.Parent.Text + '\\');
+                    currentNode = currentNode.Parent;
+                }
+
+                filesName.Add(fullPath);
+                fullPath = string.Empty;
+            }
 
             //Get path save
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
@@ -209,22 +264,25 @@ namespace Client
             //Save files
             while (allReceiveBytes != bytesMap.Sum())
             {
-                fullPath = savePath + '\\' + filesName[index];
-                for (int i = 1; receiveBytesOneFile != bytesMap[index]; i++)
+                allReceiveBytes += socket.Receive(buffer, 0, bytesMap[indName], SocketFlags.None);
+                fullPath = savePath + "\\" + Encoding.Unicode.GetString(buffer, 0, bytesMap[indName]);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+                for (int i = 1; receiveBytesOneFile != bytesMap[indSize]; i++)
                 {
                     using (BinaryWriter writer = new BinaryWriter(File.Open(fullPath, FileMode.OpenOrCreate)))
                     {
-                        if (buffer.Length >= bytesMap[index])
+                        if (buffer.Length >= bytesMap[indSize])
                         {
-                            receiveBytes = socket.Receive(buffer, 0, bytesMap[index], SocketFlags.None);
-                            writer.Write(buffer, 0, bytesMap[index]);
+                            receiveBytes = socket.Receive(buffer, 0, bytesMap[indSize], SocketFlags.None);
+                            writer.Write(buffer, 0, bytesMap[indSize]);
                         }
                         else
                         {
-                            if (i * buffer.Length < bytesMap[index])
+                            if (i * buffer.Length < bytesMap[indSize])
                                 receiveBytes = socket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                             else
-                                receiveBytes = socket.Receive(buffer, 0, bytesMap[index] - (i - 1) * buffer.Length, SocketFlags.None);
+                                receiveBytes = socket.Receive(buffer, 0, bytesMap[indSize] - (i - 1) * buffer.Length, SocketFlags.None);
                             writer.Seek(receiveBytesOneFile, SeekOrigin.Begin);
                             writer.Write(buffer, 0, receiveBytes);
                         }
@@ -234,11 +292,13 @@ namespace Client
                     }
                 }
 
-                index++;
+                indName += 2;
+                indSize += 2;
                 receiveBytesOneFile = 0;
             }
 
             socket.Send(buffer);
+            selectedNode.Clear();
 
             //Log
             l.Download(filesName.Count, allReceiveBytes);
@@ -252,18 +312,32 @@ namespace Client
             socket.Connect(ipPoint);
 
             string map = string.Empty;
-            var filesNameForDelte = new List<string>();
+            var filesNameForDelete = new List<string>();
+            string fullPath = string.Empty;
+            TreeNode currentNode;
 
             //Send code query
             socket.Send(BitConverter.GetBytes((int)Query.Delete));
             socket.Receive(buffer);
 
             //Get file name checked
-            foreach (TreeNode node in treeView1.Nodes)
-                if (node.Tag == "selected") filesNameForDelte.Add(node.Text);
+            foreach (TreeNode node in selectedNode)
+            {
+                fullPath += node.Text;
+                currentNode = node;
+
+                while (currentNode.Parent != treeView1.TopNode)
+                {
+                    fullPath = fullPath.Insert(0, currentNode.Parent.Text + '\\');
+                    currentNode = currentNode.Parent;
+                }
+
+                filesNameForDelete.Add(fullPath);
+                fullPath = string.Empty;
+            }
 
             //Send bytes map
-            foreach (string fn in filesNameForDelte)
+            foreach (string fn in filesNameForDelete)
             {
                 map += fn.Length * sizeof(char);
                 map += '.';
@@ -274,7 +348,7 @@ namespace Client
             socket.Receive(buffer);
 
             //Send file name 
-            foreach (string name in filesNameForDelte)
+            foreach (string name in filesNameForDelete)
                 socket.Send(Encoding.Unicode.GetBytes(name));
 
             socket.Receive(buffer);
@@ -282,9 +356,10 @@ namespace Client
             socket.Close();
 
             //Log
-            l.Delete(filesNameForDelte.Count);
+            l.Delete(filesNameForDelete.Count);
             //
 
+            selectedNode.Clear();
             viewFileTree();
         }
 
