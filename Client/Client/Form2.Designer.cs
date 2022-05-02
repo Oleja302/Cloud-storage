@@ -146,10 +146,10 @@
             this.tab2.Controls.Add(this.passwordReg);
             this.tab2.Controls.Add(this.emailReg);
             this.tab2.Controls.Add(this.materialButton2);
-            this.tab2.Location = new System.Drawing.Point(4, 28);
+            this.tab2.Location = new System.Drawing.Point(4, 29);
             this.tab2.Name = "tab2";
             this.tab2.Padding = new System.Windows.Forms.Padding(3);
-            this.tab2.Size = new System.Drawing.Size(327, 312);
+            this.tab2.Size = new System.Drawing.Size(327, 311);
             this.tab2.TabIndex = 1;
             this.tab2.Text = "Регистрация";
             this.tab2.UseVisualStyleBackColor = true;
@@ -184,7 +184,7 @@
             // nameReg
             // 
             this.nameReg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.nameReg.Location = new System.Drawing.Point(71, 21);
+            this.nameReg.Location = new System.Drawing.Point(71, 11);
             this.nameReg.Multiline = true;
             this.nameReg.Name = "nameReg";
             this.nameReg.Size = new System.Drawing.Size(176, 29);
@@ -193,7 +193,7 @@
             // passwordReg
             // 
             this.passwordReg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.passwordReg.Location = new System.Drawing.Point(71, 185);
+            this.passwordReg.Location = new System.Drawing.Point(71, 175);
             this.passwordReg.Multiline = true;
             this.passwordReg.Name = "passwordReg";
             this.passwordReg.Size = new System.Drawing.Size(176, 29);
@@ -203,7 +203,7 @@
             // emailReg
             // 
             this.emailReg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.emailReg.Location = new System.Drawing.Point(71, 101);
+            this.emailReg.Location = new System.Drawing.Point(71, 91);
             this.emailReg.Multiline = true;
             this.emailReg.Name = "emailReg";
             this.emailReg.Size = new System.Drawing.Size(176, 29);

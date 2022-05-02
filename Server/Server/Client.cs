@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
 
 namespace Server
@@ -10,17 +9,16 @@ namespace Server
         public long UsedSpace { get; private set; }
         public bool VIP { get; private set; }
 
-        public Client(Account a, int usedSpace = 0, bool vip = false)
+        public Client(Account acc, int usedSpace = 0, bool vip = false)
         {
-            this.account = a;
+            this.account = acc;
             this.UsedSpace = UsedSpace;
             this.VIP = vip;
         }
 
-        public void ChangeUsedSpace(int size, bool increase)
+        public void CalculateUsedSpace()
         {
-            if (increase) UsedSpace += size;
-            else UsedSpace -= size;
+            this.UsedSpace = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\{account.Email}").EnumerateFiles().Sum(file => file.Length);
         }
 
         public void SetVIP(bool vip)
@@ -36,6 +34,7 @@ namespace Server
             int allReceiveBytes = 0;
             int receiveBytes = 0;
             int receiveBytesWithoutName = 0;
+            long fileSize = 0;
 
             byte[] buffer = new byte[5242880];
             int[] bytesMap = new int[] { };
@@ -78,6 +77,7 @@ namespace Server
                     }
                 }
 
+                fileSize += receiveBytesWithoutName;
                 receiveBytesWithoutName = 0;
                 indName += 2;
                 indSize += 2;
@@ -85,8 +85,11 @@ namespace Server
 
             handler.Send(buffer);
 
+            CalculateUsedSpace();
+
+            //Log
             Logger l = new Logger();
-            l.Save(bytesMap.Length, allReceiveBytes);
+            l.Save(bytesMap.Length / 2, fileSize);
         }
 
         public void Download(Socket handler)
@@ -127,6 +130,8 @@ namespace Server
                     map += '.';
                     map += new FileInfo(pathFilesClient + name).Length;
                     map += '.';
+
+                    //For log
                     fileSize += new FileInfo(pathFilesClient + name).Length;
                 }
                 else
@@ -137,6 +142,8 @@ namespace Server
                         map += '.';
                         map += new FileInfo(f).Length;
                         map += '.';
+
+                        //For log
                         fileSize += new FileInfo(f).Length;
                     }
                 }
@@ -166,6 +173,7 @@ namespace Server
             handler.Shutdown(SocketShutdown.Both);
             handler.Close();
 
+            //Log
             Logger l = new Logger();
             l.Download(bytesMap.Length, fileSize);
         }
@@ -199,9 +207,12 @@ namespace Server
             foreach (string f in filesName)
             {
                 if (File.Exists(pathFilesClient + f)) File.Delete(pathFilesClient + f);
-                else Directory.Delete(pathFilesClient + f, true);
+                else if (Directory.Exists(pathFilesClient + f)) Directory.Delete(pathFilesClient + f, true);
             }
 
+            CalculateUsedSpace();
+
+            //Log
             Logger l = new Logger();
             l.Delete(bytesMap.Length);
         }
@@ -216,7 +227,6 @@ namespace Server
 
             if (filesName.Length == 0)
                 handler.Send(Encoding.Unicode.GetBytes("|"));
-
             else
             {
                 filesName = filesName.Remove(filesName.Length - 1);

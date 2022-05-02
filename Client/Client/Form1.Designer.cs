@@ -29,29 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Узел11");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Узел12");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Узел13");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Узел0", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3});
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Узел1");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Узел2");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Узел3");
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Узел4");
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Узел14");
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Узел15");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Узел16");
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Узел5", new System.Windows.Forms.TreeNode[] {
-            treeNode9,
-            treeNode10,
-            treeNode11});
-            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Узел6");
-            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Узел7");
-            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Узел8");
-            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Узел9");
-            System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("Узел10");
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.treeView1 = new System.Windows.Forms.TreeView();
@@ -69,7 +46,7 @@
             // 
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(6, 71);
+            this.panel1.Location = new System.Drawing.Point(6, 70);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(514, 373);
             this.panel1.TabIndex = 1;
@@ -90,56 +67,10 @@
             this.treeView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.treeView1.Location = new System.Drawing.Point(7, 71);
             this.treeView1.Name = "treeView1";
-            treeNode1.Name = "Узел11";
-            treeNode1.Text = "Узел11";
-            treeNode2.Name = "Узел12";
-            treeNode2.Text = "Узел12";
-            treeNode3.Name = "Узел13";
-            treeNode3.Text = "Узел13";
-            treeNode4.Name = "Узел0";
-            treeNode4.Text = "Узел0";
-            treeNode5.Name = "Узел1";
-            treeNode5.Text = "Узел1";
-            treeNode6.Name = "Узел2";
-            treeNode6.Text = "Узел2";
-            treeNode7.Name = "Узел3";
-            treeNode7.Text = "Узел3";
-            treeNode8.Name = "Узел4";
-            treeNode8.Text = "Узел4";
-            treeNode9.Name = "Узел14";
-            treeNode9.Text = "Узел14";
-            treeNode10.Name = "Узел15";
-            treeNode10.Text = "Узел15";
-            treeNode11.Name = "Узел16";
-            treeNode11.Text = "Узел16";
-            treeNode12.Name = "Узел5";
-            treeNode12.Text = "Узел5";
-            treeNode13.Name = "Узел6";
-            treeNode13.Text = "Узел6";
-            treeNode14.Name = "Узел7";
-            treeNode14.Text = "Узел7";
-            treeNode15.Name = "Узел8";
-            treeNode15.Text = "Узел8";
-            treeNode16.Name = "Узел9";
-            treeNode16.Text = "Узел9";
-            treeNode17.Name = "Узел10";
-            treeNode17.Text = "Узел10";
-            this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode4,
-            treeNode5,
-            treeNode6,
-            treeNode7,
-            treeNode8,
-            treeNode12,
-            treeNode13,
-            treeNode14,
-            treeNode15,
-            treeNode16,
-            treeNode17});
             this.treeView1.Size = new System.Drawing.Size(347, 372);
             this.treeView1.TabIndex = 4;
             this.treeView1.TabStop = false;
-            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
+            this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
             // 
             // statusStrip1
             // 

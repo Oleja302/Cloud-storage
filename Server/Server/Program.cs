@@ -19,7 +19,7 @@ listenSocket.Bind(ipPoint);
 listenSocket.Listen(10);
 
 Console.WriteLine("Сервер запущен");
-db.Clients.ReadClientsFromFile();
+db.Users.ReadUsersFromFile();
 
 while (true)
 {
@@ -29,33 +29,34 @@ while (true)
     {
         int receiveBytes = clientSocket.Receive(buffer);
         string[] dataUser = Encoding.Unicode.GetString(buffer, 0, receiveBytes).Split(' ');
-        bool res = false;
 
-        if (dataUser.Length == 2) res = db.CheckClient(new Account(dataUser[0], dataUser[1]));
-        else res = db.CheckClient(new Account(dataUser[0], dataUser[1], dataUser[2]));
+        bool checkClient = false;
+        bool checkAdmin = false;
+
+        db.Users.CheckClientOrAdmin(new Account(dataUser[0], dataUser[1]), ref checkClient, ref checkAdmin);
 
         if (dataUser.Length == 2)
         {
-            if (res)
+            if (checkClient)
             {
-                if (dataUser[0] == "admin@admin.com" && dataUser[1] == "111111")                
-                    admin = new Admin(new Account(dataUser[0], dataUser[1], "admin"));              
-                else             
-                    currentClient = db.Clients.GetClient(dataUser[0], dataUser[1]);               
-
+                currentClient = db.Users.GetClient(dataUser[0], dataUser[1]);
+                clientSocket.Send(BitConverter.GetBytes(1));
+            }
+            else if (checkAdmin)
+            {
+                admin = new Admin(new Account(dataUser[0], dataUser[1], "admin"));
                 clientSocket.Send(BitConverter.GetBytes(1));
             }
             else clientSocket.Send(BitConverter.GetBytes(0));
         }
         else if (dataUser.Length == 3)
         {
-            if (!res)
+            if (!checkClient)
             {
-                db.Clients.AddClient(new Account(dataUser[0], dataUser[1], dataUser[2]));
-                db.Clients.WriteClientsToFile();
-
                 currentClient = new Client(new Account(dataUser[0], dataUser[1], dataUser[2]));
-                Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\{currentClient.account.Email}");
+
+                db.Users.AddClient(currentClient);
+                db.Users.WriteClientsToFile();
 
                 clientSocket.Send(BitConverter.GetBytes(0));
             }
@@ -64,6 +65,7 @@ while (true)
     }
     else
     {
+        //Get code query
         clientSocket.Receive(buffer);
 
         switch ((Query)BitConverter.ToInt32(buffer))
@@ -72,6 +74,7 @@ while (true)
                 clientSocket.Send(buffer);
                 if (currentClient != null) currentClient.Save(clientSocket);
                 else admin.Save(clientSocket);
+                db.CalculateUsedSpaceClients();
                 break;
             case Query.Download:
                 clientSocket.Send(buffer);
@@ -82,6 +85,7 @@ while (true)
                 clientSocket.Send(buffer);
                 if (currentClient != null) currentClient.Delete(clientSocket);
                 else admin.Delete(clientSocket);
+                db.CalculateUsedSpaceClients();
                 break;
             case Query.GetFiles:
                 if (currentClient != null) currentClient.GetFiles(clientSocket);

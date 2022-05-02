@@ -2,16 +2,15 @@
 {
     internal class DataBase
     {
-        public Clients Clients { get; private set; } = new Clients();
-        public string FreeSpace { get; private set; } 
-        public string[] FormatData { get; private set; } 
+        public Users Users { get; private set; } = new Users();
+        public long UsedSpaceClients { get; private set; } = 0;
 
-        public bool CheckClient(Account acc)
+        public void CalculateUsedSpaceClients()
         {
-            foreach (Client c in Clients.Users)          
-                if (acc.Email == c.account.Email && acc.Password == c.account.Password) return true;
-            
-            return false;
+            UsedSpaceClients = 0;
+            foreach (Client c in Users.Clients)            
+                UsedSpaceClients += c.UsedSpace;           
         }
+
     }
 }

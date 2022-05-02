@@ -29,7 +29,7 @@ namespace Client
         public Form1()
         {
             InitializeComponent();
-            toolStripStatusLabel1.Text = "Количество выбранных файлов: 0";
+            toolStripStatusLabel1.Text = $"Количество выбранных файлов: {pathFiles.Count}";
         }
 
         void viewFileTree()
@@ -46,6 +46,7 @@ namespace Client
             //Send code query
             socket.Send(BitConverter.GetBytes((int)Query.GetFiles));
 
+            //Get files name
             do
             {
                 receiveBytes = socket.Receive(buffer);
@@ -60,6 +61,7 @@ namespace Client
 
             //Performance files in tree          
             TreeNode currentNode = new TreeNode();
+            
             if (treeView1.TopNode == null) treeView1.Nodes.Add(currentNode);
             else currentNode = treeView1.TopNode;
 
@@ -130,31 +132,16 @@ namespace Client
             panel1.Visible = false;
         }
 
-        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            if (e.Node.BackColor == Color.Gainsboro)
-            {
-                e.Node.BackColor = Color.Transparent;
-                e.Node.Tag = "not selected";
-                selectedNode.Remove(e.Node);
-            }
-            else
-            {
-                e.Node.BackColor = Color.Gainsboro;
-                e.Node.Tag = "selected";
-                selectedNode.Add(e.Node);
-            }
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
+            if (pathFiles.Count == 0) return;
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipPoint);
 
             byte[] buffer = new byte[5242880];
             string map = string.Empty;
-            long size = 0;
+            long fileSize = 0;
 
             //Send code query
             socket.Send(BitConverter.GetBytes((int)Query.Save));
@@ -169,7 +156,7 @@ namespace Client
                 map += '.';
 
                 //For log
-                size += new FileInfo(pathFiles[i]).Length;
+                fileSize += new FileInfo(pathFiles[i]).Length;
             }
 
             map = map.Remove(map.Length - 1);
@@ -189,17 +176,18 @@ namespace Client
             socket.Close();
 
             //Log
-            l.Send(pathFiles.Count, size);
+            l.Send(pathFiles.Count, fileSize);
             //
 
             pathFiles.Clear();
             fileNames.Clear();
-            toolStripStatusLabel1.Text = "Количество выбранных файлов: 0";
+            toolStripStatusLabel1.Text = $"Количество выбранных файлов: {pathFiles.Count}";
             viewFileTree();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            if (selectedNode.Count == 0) return;
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipPoint);
@@ -210,6 +198,7 @@ namespace Client
             int receiveBytes = 0;
             int receiveBytesOneFile = 0;
             string fullPath = string.Empty;
+            long fileSize = 0;
 
             TreeNode currentNode;
             string map = string.Empty;
@@ -287,26 +276,35 @@ namespace Client
                             writer.Write(buffer, 0, receiveBytes);
                         }
 
+                        
                         allReceiveBytes += receiveBytes;
                         receiveBytesOneFile += receiveBytes;
                     }
                 }
 
-                indName += 2;
-                indSize += 2;
+                fileSize += receiveBytesOneFile;
                 receiveBytesOneFile = 0;
+                indName += 2;
+                indSize += 2;              
             }
 
             socket.Send(buffer);
+
+            foreach (TreeNode node in selectedNode)
+            {
+                node.BackColor = Color.Transparent;
+                node.Tag = "not selected";
+            }
             selectedNode.Clear();
 
             //Log
-            l.Download(filesName.Count, allReceiveBytes);
+            l.Download(filesName.Count, fileSize);
             //
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (selectedNode.Count == 0) return;
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipPoint);
@@ -370,6 +368,23 @@ namespace Client
             form2.ShowDialog();
             viewFileTree();
             Show();
+        }
+
+        private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if(e.Node == treeView1.TopNode) return;
+            if (e.Node.BackColor == Color.Gainsboro)
+            {
+                e.Node.BackColor = Color.Transparent;
+                e.Node.Tag = "not selected";
+                selectedNode.Remove(e.Node);
+            }
+            else
+            {
+                e.Node.BackColor = Color.Gainsboro;
+                e.Node.Tag = "selected";
+                selectedNode.Add(e.Node);
+            }
         }
     }
 }

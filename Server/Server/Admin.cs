@@ -7,9 +7,9 @@ namespace Server
     {
         public Account account { get; private set; }
 
-        public Admin(Account a) 
+        public Admin(Account acc)
         {
-            account = a;
+            account = acc;
         }
 
         public void Save(Socket handler)
@@ -20,6 +20,7 @@ namespace Server
             int allReceiveBytes = 0;
             int receiveBytes = 0;
             int receiveBytesWithoutName = 0;
+            long fileSize = 0;
 
             byte[] buffer = new byte[5242880];
             int[] bytesMap = new int[] { };
@@ -62,6 +63,7 @@ namespace Server
                     }
                 }
 
+                fileSize += receiveBytesWithoutName;
                 receiveBytesWithoutName = 0;
                 indName += 2;
                 indSize += 2;
@@ -69,8 +71,9 @@ namespace Server
 
             handler.Send(buffer);
 
+            //Log
             Logger l = new Logger();
-            l.Save(bytesMap.Length, allReceiveBytes);
+            l.Save(bytesMap.Length / 2, fileSize);
         }
 
         public void Download(Socket handler)
@@ -111,6 +114,8 @@ namespace Server
                     map += '.';
                     map += new FileInfo(pathFilesClient + name).Length;
                     map += '.';
+
+                    //For log
                     fileSize += new FileInfo(pathFilesClient + name).Length;
                 }
                 else
@@ -121,6 +126,8 @@ namespace Server
                         map += '.';
                         map += new FileInfo(f).Length;
                         map += '.';
+
+                        //For log
                         fileSize += new FileInfo(f).Length;
                     }
                 }
@@ -150,6 +157,7 @@ namespace Server
             handler.Shutdown(SocketShutdown.Both);
             handler.Close();
 
+            //Log
             Logger l = new Logger();
             l.Download(bytesMap.Length, fileSize);
         }
@@ -183,9 +191,10 @@ namespace Server
             foreach (string f in filesName)
             {
                 if (File.Exists(pathFilesClient + f)) File.Delete(pathFilesClient + f);
-                else Directory.Delete(pathFilesClient + f, true);
+                else if (Directory.Exists(pathFilesClient + f)) Directory.Delete(pathFilesClient + f, true);
             }
 
+            //Log
             Logger l = new Logger();
             l.Delete(bytesMap.Length);
         }
