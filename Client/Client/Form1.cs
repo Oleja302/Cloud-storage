@@ -1,4 +1,5 @@
 using MaterialSkin.Controls;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Net;
 using System.Net.Sockets;
@@ -61,7 +62,7 @@ namespace Client
 
             //Performance files in tree          
             TreeNode currentNode = new TreeNode();
-            
+
             if (treeView1.TopNode == null) treeView1.Nodes.Add(currentNode);
             else currentNode = treeView1.TopNode;
 
@@ -85,12 +86,15 @@ namespace Client
 
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
+            pathFiles.Clear();
+            fileNames.Clear();
+
             foreach (string path in (string[])e.Data.GetData(DataFormats.FileDrop))
             {
                 if (Directory.Exists(path))
                 {
                     string root = new DirectoryInfo(path).Name;
-                    foreach (string f in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
+                    foreach (string f in Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly))
                     {
                         pathFiles.Add(f);
                         fileNames.Add(f.Remove(0, f.IndexOf(root)));
@@ -102,7 +106,6 @@ namespace Client
                     fileNames.Add(Path.GetFileName(path));
                 }
             }
-
 
             pathFiles = pathFiles.Distinct().ToList();
             toolStripStatusLabel1.Text = $"Количество выбранных файлов: {pathFiles.Count}";
@@ -276,7 +279,7 @@ namespace Client
                             writer.Write(buffer, 0, receiveBytes);
                         }
 
-                        
+
                         allReceiveBytes += receiveBytes;
                         receiveBytesOneFile += receiveBytes;
                     }
@@ -285,7 +288,7 @@ namespace Client
                 fileSize += receiveBytesOneFile;
                 receiveBytesOneFile = 0;
                 indName += 2;
-                indSize += 2;              
+                indSize += 2;
             }
 
             socket.Send(buffer);
@@ -365,14 +368,36 @@ namespace Client
         {
             Form2 form2 = new Form2();
             Hide();
+
+            string currentDir = Directory.GetCurrentDirectory();
+            string pathToExecutable = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+            //Start server
+            Process.Start(pathToExecutable.Substring(0, pathToExecutable.IndexOf("Client")) + @"Server\Server\bin\Debug\net6.0\Server.exe");
+
+            form2.TopMost = true;
+            form2.Activate();
             form2.ShowDialog();
+
+            //Get files from current directory           
+            if (!currentDir.Contains(pathToExecutable.Substring(0, pathToExecutable.IndexOf("Client"))))
+                foreach (string path in Directory.GetFiles(currentDir, "*", SearchOption.TopDirectoryOnly))
+                {
+                    if (File.Exists(path))
+                    {
+                        pathFiles.Add(path);
+                        fileNames.Add(Path.GetFileName(path));
+                    }
+                }
+          
             viewFileTree();
+            toolStripStatusLabel1.Text = $"Количество выбранных файлов: {pathFiles.Count}";
             Show();
         }
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if(e.Node == treeView1.TopNode) return;
+            if (e.Node == treeView1.TopNode) return;
             if (e.Node.BackColor == Color.Gainsboro)
             {
                 e.Node.BackColor = Color.Transparent;

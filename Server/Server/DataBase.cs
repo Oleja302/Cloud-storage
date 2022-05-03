@@ -11,6 +11,5 @@
             foreach (Client c in Users.Clients)            
                 UsedSpaceClients += c.UsedSpace;           
         }
-
     }
 }

@@ -19,3 +19,5 @@ D:\Programming\С sharp\Сloud storage application\Client\Client\bin\Debug\net6.
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.csproj.CopyComplete
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.Properties.Resources.resources
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.Form2.resources
+D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Interop.IWshRuntimeLibrary.dll
+D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.csproj.ResolveComReference.cache
