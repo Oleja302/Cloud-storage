@@ -7,7 +7,10 @@ int port = 8005;
 string address = "127.0.0.1";
 
 byte[] buffer = new byte[5242880];
-DataBase db = new DataBase();
+
+Users users = new Users();
+users.ReadUsersFromFile();
+DataBase db = new DataBase(users);
 
 Client currentClient = null;
 Admin admin = null;
@@ -19,7 +22,6 @@ listenSocket.Bind(ipPoint);
 listenSocket.Listen(10);
 
 Console.WriteLine("Сервер запущен");
-db.Users.ReadUsersFromFile();
 
 while (true)
 {
@@ -53,10 +55,9 @@ while (true)
         {
             if (!checkClient)
             {
-                currentClient = new Client(new Account(dataUser[0], dataUser[1], dataUser[2]));
-
-                db.Users.AddClient(currentClient);
+                db.Users.AddClient(new Account(dataUser[0], dataUser[1], dataUser[2]));
                 db.Users.WriteClientsToFile();
+                currentClient = db.Users.Clients.Last();
 
                 clientSocket.Send(BitConverter.GetBytes(0));
             }

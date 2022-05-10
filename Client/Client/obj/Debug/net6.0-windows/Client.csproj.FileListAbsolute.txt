@@ -4,7 +4,6 @@ D:\Programming\С sharp\Сloud storage application\Client\Client\bin\Debug\net6.
 D:\Programming\С sharp\Сloud storage application\Client\Client\bin\Debug\net6.0-windows\Client.dll
 D:\Programming\С sharp\Сloud storage application\Client\Client\bin\Debug\net6.0-windows\Client.pdb
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.csproj.AssemblyReference.cache
-D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.Form1.resources
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.csproj.GenerateResource.cache
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.GeneratedMSBuildEditorConfig.editorconfig
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.AssemblyInfoInputs.cache
@@ -18,6 +17,7 @@ D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.
 D:\Programming\С sharp\Сloud storage application\Client\Client\bin\Debug\net6.0-windows\MaterialSkin.dll
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.csproj.CopyComplete
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.Properties.Resources.resources
-D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.Form2.resources
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Interop.IWshRuntimeLibrary.dll
 D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.csproj.ResolveComReference.cache
+D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.EnterWindow.resources
+D:\Programming\С sharp\Сloud storage application\Client\Client\obj\Debug\net6.0-windows\Client.MainWindow.resources

@@ -2,7 +2,13 @@
 {
     internal class DataBase
     {
-        public Users Users { get; private set; } = new Users();
+        public Users Users { get; private set; }
+
+        public DataBase(Users users)
+        {
+            this.Users = users;
+        }
+
         public long UsedSpaceClients { get; private set; } = 0;
 
         public void CalculateUsedSpaceClients()

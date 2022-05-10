@@ -11,7 +11,7 @@ namespace Server
 
         public Client(Account acc, int usedSpace = 0, bool vip = false)
         {
-            this.account = acc;
+            this.account = new Account(acc.Email, acc.Password, acc.Name);
             this.UsedSpace = UsedSpace;
             this.VIP = vip;
         }

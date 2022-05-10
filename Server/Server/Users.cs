@@ -8,22 +8,12 @@
         public void AddClient(Account account)
         {
             Clients.Add(new Client(account));
+            Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\{account.Email}");
         }
 
         public void AddAdmin(Account account)
         {
             Admins.Add(new Admin(account));
-        }
-
-        public void AddClient(Client c)
-        {
-            Clients.Add(c);
-            Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + $"\\Storage\\{c.account.Email}");
-        }
-
-        public void AddAdmin(Admin a)
-        {
-            Admins.Add(a);
         }
 
         public void CheckClientOrAdmin(Account acc, ref bool checkClient, ref bool checkAdmin)
@@ -61,9 +51,8 @@
                     while (!reader.EndOfStream)
                     {
                         userData = reader.ReadLine().Split(" ");
-                        Client c = new Client(new Account(userData[0], userData[1], userData[2]));
-                        c.CalculateUsedSpace();
-                        AddClient(c);
+                        AddClient(new Account(userData[0], userData[1], userData[2]));
+                        Clients.Last().CalculateUsedSpace();
                     }
 
             //Read admins
@@ -71,9 +60,8 @@
                 using (StreamReader reader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "\\admins.txt"))
                     while (!reader.EndOfStream)
                     {
-                        userData = reader.ReadLine().Split(" ");
-                        Admin a = new Admin(new Account(userData[0], userData[1], userData[2]));
-                        AddAdmin(a);
+                        userData = reader.ReadLine().Split(" ");;
+                        AddAdmin(new Account(userData[0], userData[1], userData[2]));
                     }
         }
 

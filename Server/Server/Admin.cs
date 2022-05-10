@@ -9,7 +9,7 @@ namespace Server
 
         public Admin(Account acc)
         {
-            account = acc;
+            this.account = new Account(acc.Email, acc.Password, acc.Name);
         }
 
         public void Save(Socket handler)
